@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 import ebookmeta
 import os
@@ -57,7 +58,7 @@ def rename_ebooks(directory):
             rename_ebook(os.path.join(root, file))
 
 
-if __name__ == "__main__":
+def main():
   arguments = parse_arguments()
   target_path = arguments.path
 
@@ -66,3 +67,6 @@ if __name__ == "__main__":
   else:
     rename_ebook(target_path)
 
+
+if __name__ == "__main__":
+  main()
