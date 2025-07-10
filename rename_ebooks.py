@@ -6,14 +6,14 @@ import os
 def parse_arguments():
   parser = argparse.ArgumentParser(
     prog=os.path.basename(__file__),
-    description="Rename .fb2, .epub2, .epub3 files in a specified directory according with books metadata")
+    description="Rename .fb2, .epub2, .epub3 files in a specified directory according to books metadata")
 
   parser.add_argument("path", help="Path to an ebook file or to an directory with ebooks files to rename")
 
   arguments = parser.parse_args()
 
   if not os.path.exists(arguments.path):
-    parser.error("'path' should be an exist file or directory")
+    parser.error("The specified path does not exist")
 
   return arguments
 
@@ -36,7 +36,7 @@ def get_filename(authors, title, file_extension):
 
 def rename_ebook(file):
   if not file.endswith(".fb2") and not file.endswith(".epub"):
-    raise Exception("'{}' is unsupported ebook file format".format(file))
+    raise ValueError(f"'{file}' is unsupported ebook file format")
 
   meta = ebookmeta.get_metadata(file)
   authors = meta.author_list_to_string()
@@ -65,3 +65,4 @@ if __name__ == "__main__":
     rename_ebooks(target_path)
   else:
     rename_ebook(target_path)
+
