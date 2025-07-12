@@ -2,6 +2,21 @@
 import argparse
 import ebookmeta
 import os
+import platform
+
+
+_FORBIDDEN_CHARS = None
+_TRANSLATE_TABLE = None
+
+
+def _init_translate_table():
+    global _FORBIDDEN_CHARS, _TRANSLATE_TABLE
+    if _TRANSLATE_TABLE is None:
+        if platform.system() == 'Windows':
+            _FORBIDDEN_CHARS = {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\x00'}
+        else:
+            _FORBIDDEN_CHARS = {'/', '\x00'}
+        _TRANSLATE_TABLE = str.maketrans({char: None for char in _FORBIDDEN_CHARS})
 
 
 def parse_arguments():
@@ -19,18 +34,15 @@ def parse_arguments():
   return arguments
 
 
-def escape_windows_forbidden_characters(filename):
-  forbidden_characters = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
-
-  for char in forbidden_characters:
-    filename = filename.replace(char, '')
-
-  return filename
+def escape_forbidden_characters(filename):
+  _init_translate_table()
+  escaped = filename.translate(_TRANSLATE_TABLE)
+  return escaped
 
 
 def get_filename(authors, title, file_extension):
   filename = "{} - {}{}".format(authors, title, file_extension)
-  filename = escape_windows_forbidden_characters(filename)
+  filename = escape_forbidden_characters(filename)
 
   return filename
 

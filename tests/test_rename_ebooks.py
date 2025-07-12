@@ -25,22 +25,51 @@ def temp_ebook(tmp_path):
     return str(ebook_path)
 
 
-@pytest.mark.parametrize("input_name, expected", [
-    ("file:name?.txt", "filename.txt"),
-    ("<book|title>", "booktitle"),
-    ("a/b\\c*d", "abcd"),
-    ("valid_name.txt", "valid_name.txt"),
-    ('"quote"', "quote"),
-    ("file/name", "filename"),
-    ("file\\name", "filename"),
-    ("file|name", "filename"),
-    ("file?name", "filename"),
-    ("file*name", "filename"),
-    ("", ""),
-    ("no_changes", "no_changes"),
+@pytest.fixture(autouse=True)
+def reset_module_state():
+    """Resets the module state before each test"""
+    rename_ebooks._FORBIDDEN_CHARS = None
+    rename_ebooks._TRANSLATE_TABLE = None
+    yield
+
+
+@pytest.mark.parametrize("os_name, input_name, expected", [
+    ("Windows", "file:name?.txt", "filename.txt"),
+    ("Windows", "<book|title>", "booktitle"),
+    ("Windows", "a/b\\c*d", "abcd"),
+    ("Windows", "valid_name.txt", "valid_name.txt"),
+    ("Windows", '"quote"', "quote"),
+    ("Windows", "file/name", "filename"),
+    ("Windows", "file\\name", "filename"),
+    ("Windows", "file|name", "filename"),
+    ("Windows", "file?name", "filename"),
+    ("Windows", "file*name", "filename"),
+    ("Windows", "", ""),
+    ("Windows", "no_changes", "no_changes"),
+    ("Windows", "file\x00name.txt", "filename.txt"),
+
+    ("Linux", "file:name?.txt", "file:name?.txt"),
+    ("Linux", "<book|title>", "<book|title>"),
+    ("Linux", "a/b\\c*d", "ab\\c*d"),
+    ("Linux", "valid_name.txt", "valid_name.txt"),
+    ("Linux", '"quote"', '"quote"'),
+    ("Linux", "file/name", "filename"),
+    ("Linux", "file\\name", "file\\name"),
+    ("Linux", "file|name", "file|name"),
+    ("Linux", "file?name", "file?name"),
+    ("Linux", "file*name", "file*name"),
+    ("Linux", "", ""),
+    ("Linux", "no_changes", "no_changes"),
+    ("Linux", "file\x00name.txt", "filename.txt"),
+
+    ("Darwin", "file/name", "filename"),
+    ("Darwin", "file\\name", "file\\name"),
+    ("Darwin", "file:name", "file:name"),
 ])
-def test_escape_windows_forbidden_characters(input_name, expected):
-    assert rename_ebooks.escape_windows_forbidden_characters(input_name) == expected
+def test_escape_forbidden_characters(os_name, input_name, expected):
+    with patch('rename_ebooks.platform.system', return_value=os_name):
+        result = rename_ebooks.escape_forbidden_characters(input_name)
+        assert result == expected
 
 
 @pytest.mark.parametrize("authors, title, ext, expected", [
