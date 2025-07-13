@@ -78,9 +78,26 @@ def test_escape_forbidden_characters(os_name, input_name, expected):
     ("", "", ".epub", " - .epub"),
     ("Author", "Title", "", "Author - Title"),
 ])
-def test_get_filename(authors, title, ext, expected):
+def test_get_filename_basic_cases(authors, title, ext, expected):
     result = rename_ebooks.get_filename(authors, title, ext)
     assert result == expected
+
+
+@pytest.mark.parametrize("existing_files, expected", [
+    ([], "Author - Title.epub"),
+    (["Author - Title.epub"], "Author - Title-1.epub"),
+    (["Author - Title.epub", "Author - Title-1.epub"], "Author - Title-2.epub"),
+])
+def test_get_filename_unique_name_generation(existing_files, expected):
+    with patch("os.path.exists", side_effect=lambda x: x in existing_files):
+        result = rename_ebooks.get_filename("Author", "Title", ".epub")
+        assert result == expected
+
+
+def test_get_filename_exceeds_max_attempts():
+    with patch("os.path.exists", return_value=True):
+        with pytest.raises(RuntimeError, match="Cannot find unique name after 100 attempts: A - B.txt"):
+            rename_ebooks.get_filename("A", "B", ".txt")
 
 
 def test_rename_ebook_unsupported_format(temp_ebook):

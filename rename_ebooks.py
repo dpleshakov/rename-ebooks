@@ -40,11 +40,17 @@ def escape_forbidden_characters(filename):
   return escaped
 
 
-def get_filename(authors, title, file_extension):
-  filename = "{} - {}{}".format(authors, title, file_extension)
-  filename = escape_forbidden_characters(filename)
+def get_filename(authors, title, file_extension, max_attempts=100):
+  filename = escape_forbidden_characters(f"{authors} - {title}")
 
-  return filename
+  if not os.path.exists(f"{filename}{file_extension}"):
+    return f"{filename}{file_extension}"
+  
+  for counter in range(1, max_attempts+1):
+    if not os.path.exists(f"{filename}-{counter}{file_extension}"):
+      return f"{filename}-{counter}{file_extension}"
+
+  raise RuntimeError(f"Cannot find unique name after {max_attempts} attempts: {filename}{file_extension}")
 
 
 def rename_ebook(file):
