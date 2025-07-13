@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 import argparse
-import ebookmeta
+import ebookmeta  # type: ignore[import-untyped]
 import os
 import platform
+from typing import Mapping, Optional
 
-_FORBIDDEN_CHARS = None
-_TRANSLATE_TABLE = None
-
-
-def _init_translate_table():
-    global _FORBIDDEN_CHARS, _TRANSLATE_TABLE
-    if _TRANSLATE_TABLE is None:
-        if platform.system() == 'Windows':
-            _FORBIDDEN_CHARS = {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\x00'}
-        else:
-            _FORBIDDEN_CHARS = {'/', '\x00'}
-        _TRANSLATE_TABLE = str.maketrans({char: None for char in _FORBIDDEN_CHARS})
+_TRANSLATE_TABLE: Optional[Mapping[int, None]] = None
 
 
-def parse_arguments():
+def _init_translate_table() -> None:
+  global _TRANSLATE_TABLE
+  if _TRANSLATE_TABLE is None:
+    if platform.system() == 'Windows':
+      forbidden_chars = {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\x00'}
+    else:
+      forbidden_chars = {'/', '\x00'}
+    
+    _TRANSLATE_TABLE = str.maketrans({char: None for char in forbidden_chars})
+
+
+def parse_arguments() -> argparse.Namespace:
   parser = argparse.ArgumentParser(
     prog=os.path.basename(__file__),
     description="Rename .fb2, .epub2, .epub3 files in a specified directory according to books metadata"
@@ -33,13 +34,13 @@ def parse_arguments():
   return arguments
 
 
-def escape_forbidden_characters(filename):
+def escape_forbidden_characters(filename: str) -> str:
   _init_translate_table()
-  escaped = filename.translate(_TRANSLATE_TABLE)
+  escaped = filename.translate(_TRANSLATE_TABLE)  # type: ignore[arg-type]
   return escaped
 
 
-def get_filename(authors, title, file_extension, max_attempts = 100):
+def get_filename(authors: str, title: str, file_extension: str, max_attempts: int = 100) -> str:
   filename = escape_forbidden_characters(f"{authors} - {title}")
 
   if not os.path.exists(f"{filename}{file_extension}"):
@@ -52,7 +53,7 @@ def get_filename(authors, title, file_extension, max_attempts = 100):
   raise RuntimeError(f"Cannot find unique name after {max_attempts} attempts: {filename}{file_extension}")
 
 
-def rename_ebook(file):
+def rename_ebook(file: str) -> None:
   if not file.endswith((".fb2", ".epub")):
     raise ValueError(f"'{file}' is unsupported ebook file format")
 
@@ -67,14 +68,14 @@ def rename_ebook(file):
   os.rename(file, new_file)
 
 
-def rename_ebooks(directory):
+def rename_ebooks(directory: str) -> None:
   for root, _, files in os.walk(directory):
     for file in files:
         if file.endswith(('.fb2', '.epub')):
             rename_ebook(os.path.join(root, file))
 
 
-def main():
+def main() -> None:
   arguments = parse_arguments()
   target_path = arguments.path
 

@@ -28,7 +28,6 @@ def temp_ebook(tmp_path):
 @pytest.fixture(autouse=True)
 def reset_module_state():
     """Resets the module state before each test"""
-    rename_ebooks._FORBIDDEN_CHARS = None
     rename_ebooks._TRANSLATE_TABLE = None
     yield
 
