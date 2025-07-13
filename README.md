@@ -10,7 +10,7 @@ A simple Python script to rename `.fb2`, `.epub2`, and `.epub3` files using eboo
 ## Installation
 
 ```bash
-pip install ebookmeta
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -28,26 +28,34 @@ python rename_ebooks.py path/to/ebook-directory
 Input: `random_book_name_12345.epub`  
 Output: `Some Author - Insert Book Title Here.epub`
 
-## Testing
+## Development and Testing
 
-To run the tests:
+```bash
+pip install -r requirements-dev.txt
+```
 
-1. Install test dependencies:
+### Static Type Checking with Mypy
+
+To perform static type checking across the project:
+
+```bash
+mypy .
+```
+
+### Running Tests
+
+- All tests with detailed output:
 
     ```bash
-    pip install pytest pytest-cov
-    ```
-
-2. Run all tests with detailed output:
-
-    ```bash
+    pytest tests/
     pytest -v tests/
     ```
 
-3. To check code coverage:
+- Code coverage report:
 
     ```bash
-    pytest --cov=rename_ebooks tests/
+    pytest --cov
+    pytest --cov --cov-report=term-missing
     ```
 
 ## License
