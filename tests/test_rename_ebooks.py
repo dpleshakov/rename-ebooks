@@ -1,11 +1,17 @@
+# pylint: disable=missing-module-docstring
+
 import os
 import sys
-import pytest
 from unittest.mock import patch, MagicMock
 
+import pytest # type: ignore[import-untyped] # pylint: disable=import-error
+
+# pylint: disable=line-too-long
+# pylint: disable=missing-function-docstring
+# pylint: disable=redefined-outer-name
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import rename_ebooks
+import rename_ebooks  # pylint: disable=wrong-import-position
 
 
 @pytest.fixture
@@ -28,7 +34,7 @@ def temp_ebook(tmp_path):
 @pytest.fixture(autouse=True)
 def reset_module_state():
     """Resets the module state before each test"""
-    rename_ebooks._TRANSLATE_TABLE = None
+    rename_ebooks._TRANSLATE_TABLE = None  # pylint: disable=protected-access
     yield
 
 
@@ -109,9 +115,9 @@ def test_rename_ebook_unsupported_format(temp_ebook):
 @patch('rename_ebooks.os.rename')
 def test_rename_ebook_success(mock_rename, mock_get_metadata, mock_metadata, temp_ebook):
     mock_get_metadata.return_value = mock_metadata
-    
+
     rename_ebooks.rename_ebook(temp_ebook)
-    
+
     parent_dir = os.path.dirname(temp_ebook)
     expected_new_path = os.path.join(parent_dir, "Author Name - Book Title.epub")
     mock_rename.assert_called_once_with(temp_ebook, expected_new_path)
@@ -124,9 +130,9 @@ def test_rename_ebook_empty_metadata(mock_rename, mock_get_metadata, temp_ebook)
     mock_meta.author_list_to_string.return_value = ""
     mock_meta.title = ""
     mock_get_metadata.return_value = mock_meta
-    
+
     rename_ebooks.rename_ebook(temp_ebook)
-    
+
     parent_dir = os.path.dirname(temp_ebook)
     expected_new_path = os.path.join(parent_dir, " - .epub")
     mock_rename.assert_called_once_with(temp_ebook, expected_new_path)
@@ -139,7 +145,7 @@ def test_rename_ebook_partial_metadata(mock_rename, mock_get_metadata, temp_eboo
     mock_meta.author_list_to_string.return_value = "Author Only"
     mock_meta.title = ""
     mock_get_metadata.return_value = mock_meta
-    
+
     rename_ebooks.rename_ebook(temp_ebook)
 
     parent_dir = os.path.dirname(temp_ebook)
@@ -155,14 +161,14 @@ def test_rename_ebooks_directory(mock_rename_ebook, tmp_path):
     subdir = tmp_path / "subdir"
     subdir.mkdir()
     valid_ebook3 = subdir / "book3.epub"
-    
+
     valid_ebook1.touch()
     valid_ebook2.touch()
     invalid_file.touch()
     valid_ebook3.touch()
-    
+
     rename_ebooks.rename_ebooks(str(tmp_path))
-    
+
     assert mock_rename_ebook.call_count == 3
     called_paths = {call.args[0] for call in mock_rename_ebook.call_args_list}
     assert str(valid_ebook1) in called_paths
@@ -195,6 +201,6 @@ def test_main_nonexistent_path(capsys):
 @patch('rename_ebooks.ebookmeta.get_metadata')
 def test_rename_ebook_metadata_error(mock_get_metadata, temp_ebook):
     mock_get_metadata.side_effect = Exception("Metadata error")
-    
+
     with pytest.raises(Exception, match="Metadata error"):
         rename_ebooks.rename_ebook(temp_ebook)

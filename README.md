@@ -34,9 +34,16 @@ Output: `Some Author - Insert Book Title Here.epub`
 pip install -r requirements-dev.txt
 ```
 
-### Static Type Checking with Mypy
+### Code Quality Tools
 
-To perform static type checking across the project:
+#### Static Analysis with Pylint
+
+```bash
+# Basic check
+pylint rename_ebooks.py
+```
+
+#### Static Type Checking with Mypy
 
 ```bash
 mypy .
@@ -57,6 +64,13 @@ mypy .
     pytest --cov
     pytest --cov --cov-report=term-missing
     ```
+
+#### Run All Checks
+
+```bash
+# Example for Unix-like systems
+pylint rename_ebooks.py && mypy . && pytest tests/
+```
 
 ## License
 
