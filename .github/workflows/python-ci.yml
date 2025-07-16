@@ -1,4 +1,4 @@
-name: Python Code Quality Pipeline
+name: Python Code Quality CI Pipeline
 
 on:
   push:
@@ -7,13 +7,15 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  quality-assurance:
 
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v4
