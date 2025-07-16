@@ -77,15 +77,23 @@ def test_escape_forbidden_characters(os_name, input_name, expected):
         assert result == expected
 
 
-@pytest.mark.parametrize("authors, title, ext, expected", [
-    ("Author", "Title", ".epub", "Author - Title.epub"),
-    ("Auth:or?", "Tit>le*", ".fb2", "Author - Title.fb2"),
-    ("", "", ".epub", " - .epub"),
-    ("Author", "Title", "", "Author - Title"),
+@pytest.mark.parametrize("os_name, authors, title, ext, expected", [
+    ("Windows", "Author", "Title", ".epub", "Author - Title.epub"),
+    ("Windows", "Auth:or?", "Tit>le*", ".fb2", "Author - Title.fb2"),
+    ("Windows", "", "", ".epub", " - .epub"),
+    ("Windows", "Author", "Title", "", "Author - Title"),
+    
+    ("Linux", "Auth:or?", "Tit>le*", ".fb2", "Auth:or? - Tit>le*.fb2"),
+    ("Linux", "a/b\\c*d", "file/name", ".txt", "ab\\c*d - filename.txt"),
+    ("Linux", '"quote"', "file|name", ".epub", '"quote" - file|name.epub'),
+    
+    ("Darwin", "file:author", "title*name", ".pdf", "file:author - title*name.pdf"),
+    ("Darwin", "a/b\\c", "d:e|f", ".txt", "ab\\c - d:e|f.txt"),
 ])
-def test_get_filename_basic_cases(authors, title, ext, expected):
-    result = rename_ebooks.get_filename(authors, title, ext)
-    assert result == expected
+def test_get_filename_basic_cases(os_name, authors, title, ext, expected):
+    with patch('rename_ebooks.platform.system', return_value=os_name):
+        result = rename_ebooks.get_filename(authors, title, ext)
+        assert result == expected
 
 
 @pytest.mark.parametrize("existing_files, expected", [
