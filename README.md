@@ -2,6 +2,11 @@
 
 A simple Python script to rename `.fb2`, `.epub2`, and `.epub3` files using ebook metadata
 
+## Requirements
+
+- **Python 3.9 or higher**  
+  *Script is tested with Python ≥3.9. Older versions (3.8 and below) might work but are not officially supported.*
+
 ## Features
 
 - Renames files using author names and book titles from metadata
@@ -10,6 +15,10 @@ A simple Python script to rename `.fb2`, `.epub2`, and `.epub3` files using eboo
 ## Installation
 
 ```bash
+# Verify Python version
+python --version  # Should show 3.9.x or higher
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
